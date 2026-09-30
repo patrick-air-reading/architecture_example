@@ -1,0 +1,59 @@
+// Prisma 7: the connection URL lives in prisma.config.ts, and the client is
+// generated as TypeScript source into src/generated (compiled with the package).
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model District {
+  id      Int      @id @default(autoincrement())
+  name    String
+  usState String   @map("us_state") @db.Char(2)
+  schools School[]
+
+  @@index([usState])
+  @@map("districts")
+}
+
+model School {
+  id         Int       @id @default(autoincrement())
+  name       String
+  districtId Int       @map("district_id")
+  district   District  @relation(fields: [districtId], references: [id], onDelete: Restrict)
+  students   Student[]
+  teachers   Teacher[]
+
+  @@index([districtId])
+  @@map("schools")
+}
+
+model Student {
+  id         Int    @id @default(autoincrement())
+  givenName  String @map("given_name")
+  familyName String @map("family_name")
+  /// 0 = Kindergarten, 1-12 = grade number
+  grade      Int    @db.SmallInt
+  schoolId   Int    @map("school_id")
+  school     School @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+
+  @@index([schoolId])
+  @@map("students")
+}
+
+model Teacher {
+  id           Int    @id @default(autoincrement())
+  givenName    String @map("given_name")
+  familyName   String @map("family_name")
+  emailAddress String @unique @map("email_address")
+  schoolId     Int    @map("school_id")
+  school       School @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+
+  @@index([schoolId])
+  @@map("teachers")
+}

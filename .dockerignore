@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/.turbo
+**/*.tsbuildinfo
+packages/db/src/generated
+.env
+.env.*
+!.env.example
+.git
+.DS_Store
+out
